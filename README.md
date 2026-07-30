@@ -27,45 +27,36 @@ streamlit run app.py
 
 브라우저: http://localhost:8501
 
-## GitHub + Streamlit Community Cloud 배포
+## 배포 (GitHub + Streamlit Community Cloud)
 
-### 1) 이 폴더를 독립 저장소로 올리기 (권장)
+| 항목 | 값 |
+|------|-----|
+| **GitHub** | https://github.com/OntologyForCapital/hynix-adr-parity |
+| **Main file** | `app.py` |
+| **Branch** | `main` |
+| **Secrets** | 없음 (Yahoo `yfinance` 공개 시세) |
 
-Streamlit Cloud는 **앱 파일이 있는 루트**를 저장소로 두는 편이 단순합니다.
+### Streamlit Cloud에 연결
+
+원클릭(로그인 후 Deploy):
+
+https://share.streamlit.io/deploy?repository=OntologyForCapital/hynix-adr-parity&branch=main&mainModule=app.py
+
+또는 수동:
+
+1. https://share.streamlit.io 로그인 (GitHub 계정 연동)  
+2. **New app** → Repository `OntologyForCapital/hynix-adr-parity`  
+3. Branch `main` · Main file path `app.py`  
+4. **Deploy**  
+
+배포 후 URL 예: `https://<app-name>.streamlit.app`
+
+로컬에서 다시 push:
 
 ```bash
 cd ~/Desktop/Pilot_Projects/주식API_Grok/hynix_adr_parity
-
-git init
-git add app.py data.py config.py requirements.txt README.md .gitignore
-git commit -m "Initial SK Hynix KR vs ADR 30m parity dashboard"
-
-# GitHub에 빈 저장소 만든 뒤 (예: hynix-adr-parity)
-gh repo create hynix-adr-parity --public --source=. --remote=origin --push
-# 또는
-# git remote add origin https://github.com/<USER>/hynix-adr-parity.git
-# git branch -M main
-# git push -u origin main
+git add -A && git commit -m "update" && git push
 ```
-
-### 2) Streamlit Community Cloud 연결
-
-1. https://share.streamlit.io 로그인 (GitHub 연동)  
-2. **New app**  
-3. Repository: `hynix-adr-parity` (또는 본인 저장소명)  
-4. Branch: `main`  
-5. Main file path: `app.py`  
-6. Deploy  
-
-API 키 없음 → **Secrets 설정 불필요** (Yahoo `yfinance` 공개 시세).
-
-### 3) 모노레포에 둘 경우
-
-상위 `주식API_Grok` 저장소를 쓰는 경우:
-
-- Main file path: `hynix_adr_parity/app.py`  
-- Python requirements: `hynix_adr_parity/requirements.txt`  
-  (Cloud 고급 설정에서 requirements 경로 지정 가능)
 
 ## 파일 구조
 
