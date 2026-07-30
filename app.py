@@ -96,7 +96,10 @@ def main() -> None:
 **캔들 색** (한국 관례)  
 - 상승: 빨강 · 하락: 파랑  
 
-데이터: Yahoo Finance (`yfinance`).  
+**데이터 소스**  
+- 국장(000660): **네이버 금융** (실패 시 Yahoo 폴백)  
+- ADR / 환율: Yahoo Finance  
+
 {meta["history_note"]}
 """
         )
@@ -110,14 +113,25 @@ def main() -> None:
     )
 
     try:
-        panel, kr_ohlcv, adr_ohlcv = load_all(period, interval)
+        panel, kr_ohlcv, adr_ohlcv, sources = load_all(period, interval)
     except Exception as exc:  # noqa: BLE001
         st.error(f"데이터 로드 실패: {exc}")
         st.stop()
 
-    if (panel is None or panel.empty) and (kr_ohlcv is None or kr_ohlcv.empty):
+    if (panel is None or panel.empty) and (kr_ohlcv is None or kr_ohlcv.empty) and (
+        adr_ohlcv is None or adr_ohlcv.empty
+    ):
         st.warning("조회된 데이터가 없습니다. 봉/기간을 바꿔 보거나 잠시 후 다시 시도하세요.")
         st.stop()
+
+    src_kr = (sources or {}).get("kr", "?")
+    src_adr = (sources or {}).get("adr", "?")
+    src_fx = (sources or {}).get("fx", "?")
+    st.caption(
+        f"소스 · 국장 `{src_kr}` ({(sources or {}).get('kr_bars', '?')}봉) · "
+        f"ADR `{src_adr}` ({(sources or {}).get('adr_bars', '?')}봉) · "
+        f"환율 `{src_fx}`"
+    )
 
     snap = latest_snapshot(panel) if panel is not None else None
     ma_windows = tuple(sorted(ma_choices)) if ma_choices else ()
@@ -139,6 +153,10 @@ def main() -> None:
         )
     else:
         st.info("최신 스냅샷을 만들 수 없습니다. (ADR·본주·환율 중 일부 결측)")
+        if kr_ohlcv is None or kr_ohlcv.empty:
+            st.warning("국장(000660) 시세를 받지 못했습니다. 새로고침을 눌러 보세요.")
+        if adr_ohlcv is None or adr_ohlcv.empty:
+            st.warning("ADR(SKHY) 시세를 받지 못했습니다. Yahoo 쪽 제한일 수 있습니다.")
 
     chart_cfg = {
         "scrollZoom": True,
